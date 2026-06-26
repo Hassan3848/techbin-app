@@ -1,18 +1,20 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { SettingsProvider } from './contexts/SettingsContext';
-import { LoginPage } from './components/LoginPage';
-import { DashboardLayout } from './components/DashboardLayout';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { DashboardOverview } from './components/pages/DashboardOverview';
-import { AnalyticsPage } from './components/pages/AnalyticsPage';
-import { RealTimeMonitoringPage } from './components/pages/RealTimeMonitoringPage';
-import { FaultDetectionPage } from './components/pages/FaultDetectionPage';
-import { BinHealthStatusPage } from './components/pages/BinHealthStatusPage';
-import { UserManagementPage } from './components/pages/UserManagementPage';
-import { SettingsPage } from './components/pages/SettingsPage';
-import BinRegistryPage from "./components/pages/BinRegistryPage";
+import { AuthProvider } from './providers/AuthProvider';
+import { SettingsProvider } from './providers/SettingsProvider';
+import { LoginPage } from '../features/auth/LoginPage';
+import { DashboardLayout } from './layouts/DashboardLayout';
+import { ProtectedRoute } from './routing/ProtectedRoute';
+import { DashboardOverview } from '../features/dashboard/DashboardOverview';
+import { AnalyticsPage } from '../features/analytics/AnalyticsPage';
+import { RealTimeMonitoringPage } from '../features/monitoring/RealTimeMonitoringPage';
+import { FaultDetectionPage } from '../features/faults/FaultDetectionPage';
+import { BinHealthStatusPage } from '../features/bin-health/BinHealthStatusPage';
+import { UserManagementPage } from '../features/users/UserManagementPage';
+import { SettingsPage } from '../features/settings/SettingsPage';
+import { PiDeviceManagementPage } from "../features/pi-devices/PiDeviceManagementPage";
+import BinRegistryPage from "../features/bins/BinRegistryPage";
+import { featureFlags } from "../shared/features";
 
 export default function App() {
   return (
@@ -59,6 +61,16 @@ export default function App() {
               />
 
               <Route path="settings" element={<SettingsPage />} />
+              {featureFlags.piDevices && (
+                <Route
+                  path="devices"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <PiDeviceManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+              )}
             </Route>
 
             {/* Catch all - redirect to login */}

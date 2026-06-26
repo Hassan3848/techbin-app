@@ -1,9 +1,7 @@
 # TechBin Dashboard (Development Setup)
 
 TechBin Dashboard is an internal organizational dashboard built for a Smart AI-based waste bin system.
-It provides role-based access (Admin / Viewer), secure authentication, and management features using Firebase Emulators.
-
-This project is designed for academic / Capstone use and does not require a paid Firebase plan.
+It provides role-based access (Admin / Viewer), secure authentication, bin management, and live Raspberry Pi telemetry using Supabase.
 
 ---
 
@@ -15,10 +13,10 @@ Frontend:
 - Tailwind CSS
 
 Backend:
-- Firebase Authentication
-- Firebase Cloud Functions
-- Firestore
-- Firebase Emulator Suite
+- Supabase Auth
+- Supabase Postgres
+- Supabase Realtime
+- Supabase Edge Functions
 
 ---
 
@@ -26,17 +24,19 @@ Backend:
 
 src/
  ├── app/
- │   ├── components/
- │   ├── contexts/AuthContext.tsx
  │   ├── App.tsx
- ├── firebase.ts
+ │   ├── layouts/
+ │   ├── providers/
+ │   └── routing/
+ ├── features/
+ ├── shared/
+ │   ├── supabase.ts
+ │   └── ui/
+ └── styles/
 
-functions-backend/
- ├── src/index.ts
- ├── lib/ (auto-generated, do not edit)
-
-firebase.json
-firestore.rules
+supabase/
+ ├── schema.sql
+ └── functions/
 
 ---
 
@@ -49,42 +49,31 @@ Roles:
 Permanent Root Admin:
 admin@techbin.com
 
-When this user logs in, the system automatically assigns Admin role using Firebase custom claims.
+Create this user manually in Supabase Auth. When this user logs in, the app calls `bootstrap-admin-profile` to create/update the matching `profiles` row as Super Admin.
 
 ---
 
 ## How to Run the Project
 
-1. Install dependencies
+From a fresh GitHub clone, run the setup script once:
 
-pnpm install
-cd functions-backend
-npm install
+```bash
+chmod +x setup.sh
+./setup.sh
+```
 
-2. Build Cloud Functions (mandatory)
+```bash
+./setup.sh dev
+```
 
-cd functions-backend
-npm run build
-
-3. Start Firebase Emulators
-
-firebase emulators:start
-
-Emulator UI:
-http://127.0.0.1:4000
-
-4. Start Frontend
-
-pnpm dev
-
-Frontend URL:
-http://localhost:5173
+URLs:
+- Frontend: http://localhost:5173
 
 ---
 
 ## One-Command Setup (Recommended for Sharing)
 
-You can now bootstrap dependencies + functions build with one file:
+You can now bootstrap dependencies and verify the frontend build with one file:
 
 - macOS / Linux:
   - Run:
@@ -99,13 +88,9 @@ You can now bootstrap dependencies + functions build with one file:
 What the setup scripts do:
 - Check Node.js and package managers
 - Install root dependencies (`pnpm`)
-- Install `functions-backend` dependencies (`npm`)
-- Build Cloud Functions (`npm run build`)
-- Warn if Firebase CLI or Java is missing
+- Build the Vite frontend
 
-After setup, run:
-- Terminal 1: `pnpm emulators`
-- Terminal 2: `pnpm dev`
+After setup, create `.env.local` from `.env.example`, apply `supabase/schema.sql`, deploy the Supabase Edge Functions, then run `./setup.sh dev`.
 
 ---
 
@@ -126,38 +111,31 @@ If sharing a ZIP:
 Then tell the receiver:
 1. Extract ZIP
 2. Run setup script (`setup.sh` or `setup.bat`)
-3. Run emulators + frontend
+3. Configure Supabase and run the frontend
 
 ---
 
 ## Create First Admin User
 
-Open Emulator UI:
-http://127.0.0.1:4000/auth
+Open Supabase Dashboard > Authentication > Users and create:
 
-Create user:
 Email: admin@techbin.com
-Password: 123123
 
-Login using the same credentials in the app.
+Then login using the same credentials in the app.
 
 ---
 
 ## Creating More Users
 
 Only Admin users can create new users using the User Management page.
-Roles are enforced using Firebase custom claims.
+Roles are enforced using the Supabase `profiles` table, RLS policies, and Edge Functions.
 
 ---
 
 ## Notes
 
-- Firebase Auth Emulator resets users on restart unless persistence is enabled
-- To persist emulator data:
-
-firebase emulators:start --export-on-exit=./emulator-data --import=./emulator-data
-
-- Analytics and telemetry data are mock-based for academic use
+- See `SUPABASE_PIPELINE.md` for the Pi ingest payload and first-bin setup.
+- Analytics and telemetry pages read live Supabase tables once the Pi starts sending data.
 
 ---
 
