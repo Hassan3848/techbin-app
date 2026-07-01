@@ -9,33 +9,7 @@ This document provides a detailed description of the end-to-end system architect
 TechBin uses a **Three-Tier IoT Architecture** to achieve low-latency edge classification, reliable data transport, and real-time visualization.
 
 ```
-+-----------------------------------------------------------------------------------+
-| 1. EDGE LAYER (Raspberry Pi & ML)                                                 |
-|                                                                                   |
-|  [Picamera2] ---> [EfficientNetV2 TFLite] ---> [Decision Engine]                  |
-|                           |                           |                           |
-|                           v                           v                           v
-|                 (AI Classification)          (Ultrasonic Check)           (Voice Feedback)
-+---------------------------------------+-------------------------------------------+
-                                        |
-                         (Secured Telemetry Stream via HTTPS)
-                                        |
-                                        v
-+-----------------------------------------------------------------------------------+
-| 2. CLOUD DATABASE & LOGIC LAYER (Supabase)                                        |
-|                                                                                   |
-|  [Auth Service] --------> [PostgreSQL Tables] <-------- [Realtime Engine]         |
-|                       (bin_states, bin_events, etc.)           |                  |
-+----------------------------------------------------------------|------------------+
-                                                                 |
-                                                    (Realtime WebSocket Stream)
-                                                                 |
-                                                                 v
-+-----------------------------------------------------------------------------------+
-| 3. PRESENTATION LAYER (React & Tailwind Web Dashboard)                            |
-|                                                                                   |
-|  [Live Analytics] <------ [State Telemetry Cards] <------ [User Management]       |
-+-----------------------------------------------------------------------------------+
+![TechBin_System Architecture](TechBinSystemArchitecture.png)
 ```
 
 ---
