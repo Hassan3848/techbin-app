@@ -17,43 +17,7 @@ This document describes the design, ML pipelines, hardware interaction, and offl
 ---
 
 ## 2. On-Device Execution Pipeline (Disposal Session)
-
-```
-[Disposal Session Triggered] (Item placed in entry chute)
-             |
-             v
-[Multi-Frame Image Capture] (Takes 5 frames via Picamera2)
-             |
-             v
-[AI Preprocessing & Inference] (RGB channel correction -> Resizing -> TFLite)
-             |
-             v
-[Confidence & Margin Validation] 
-             |
-             +----> Accepted: Predicts category (e.g. "cardboard")
-             +----> Rejected: Defaults to generic "trash"
-             |
-             v
-[User Manual Sort & Drop] (User physically chooses side and drops item)
-             |
-             v
-[Ultrasonic Side Detection] (Left/Right sensors detect drop compartment)
-             |
-             v
-[Correctness Evaluation] (Does predicted class match drop compartment?)
-             |
-             v
-[Voice Feedback Output] (Plays sound: e.g. "Disposal Correct" / "Incorrect")
-             |
-             v
-[Local Telemetry Update] (Increments local counters & caches event data)
-             |
-             v
-[Supabase Sync Engine]
-             |
-             +----> Connected: Uploads payload immediately
-             +----> Offline: Queues payload locally and runs background retry daemon
-```
+![TechBin_Ml_hardware Architecture](TechBinMLHardware.png)
 
 ---
 
