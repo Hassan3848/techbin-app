@@ -18,30 +18,7 @@ This document describes the design, components, and real-time data sync pipeline
 
 ## 2. Web Application Lifecycle & Data Pipeline
 
-```
-[User Login] 
-     |
-     v
-[Role Enforcement via profiles Table]
-     |
-     +------> Admin: Full write capabilities & user registration
-     +------> Viewer: Read-only access to dashboard data
-     |
-     v
-[Establish Supabase Realtime Listener] 
-     | (Listens to WebSocket messages on PostgreSQL updates)
-     v
-[Live State Sync Provider]
-     |
-     +------> updates `bin_states` state (real-time capacities, status)
-     +------> appends to `bin_events` list (live feed logs)
-     |
-     v
-[Component Render Cycle]
-     |
-     +------> Telemetry Cards: updates progress bars & status icons
-     +------> Analytics Charts: recalculates ratios & updates graphs
-```
+![TechBin_Web_Ml_hardware Architecture](TechbinWebApp.png)
 
 ---
 
