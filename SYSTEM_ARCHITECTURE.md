@@ -8,9 +8,9 @@ This document provides a detailed description of the end-to-end system architect
 
 TechBin uses a **Three-Tier IoT Architecture** to achieve low-latency edge classification, reliable data transport, and real-time visualization.
 
-```
+
 ![TechBin_System Architecture](TechBinSystemArchitecture.png)
-```
+
 
 ---
 
