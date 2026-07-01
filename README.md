@@ -1,142 +1,168 @@
-# TechBin Dashboard (Development Setup)
+# TechBin: Smart AI-Based Waste Management System
 
-TechBin Dashboard is an internal organizational dashboard built for a Smart AI-based waste bin system.
-It provides role-based access (Admin / Viewer), secure authentication, bin management, and live Raspberry Pi telemetry using Supabase.
+TechBin is an end-to-end, IoT and AI-driven smart waste management system designed to classify, sort, and monitor waste disposal in real time. It consists of two primary components working in tandem:
 
----
-
-## Tech Stack
-
-Frontend:
-- React + TypeScript
-- Vite
-- Tailwind CSS
-
-Backend:
-- Supabase Auth
-- Supabase Postgres
-- Supabase Realtime
-- Supabase Edge Functions
+1. **`techbin-ml-hardware` (Raspberry Pi Edge Device)**: A Python-based IoT application deployed on the physical waste bins, utilizing a camera, ultrasonic sensors, and an **EfficientNetV2 TFLite** machine learning model to classify and validate waste types locally.
+2. **`techbin-app` (Web Dashboard)**: A modern web panel built with React, TypeScript, and Tailwind CSS, powered by **Supabase**. It provides real-time telemetry, live analytics, user management, and role-based access control.
 
 ---
 
-## Project Structure
+## 📐 System Architecture & Data Flow
 
-src/
- ├── app/
- │   ├── App.tsx
- │   ├── layouts/
- │   ├── providers/
- │   └── routing/
- ├── features/
- ├── shared/
- │   ├── supabase.ts
- │   └── ui/
- └── styles/
-
-supabase/
- ├── schema.sql
- └── functions/
-
----
-
-## Authentication & Roles
-
-Roles:
-- Admin: Can manage users and access all dashboard features
-- Viewer: Read-only access
-
-Permanent Root Admin:
-admin@techbin.com
-
-Create this user manually in Supabase Auth. When this user logs in, the app calls `bootstrap-admin-profile` to create/update the matching `profiles` row as Super Admin.
-
----
-
-## How to Run the Project
-
-From a fresh GitHub clone, run the setup script once:
-
-```bash
-chmod +x setup.sh
-./setup.sh
+```
++------------------------------------------+
+|       techbin-ml-hardware (Pi)           |
+|  - Pi Camera + EfficientNetV2 Classify   |
+|  - Ultrasonic Fill Levels & Sorting      |
++--------------------+---------------------+
+                     | (Sends Telemetry & Disposal Events)
+                     v
++--------------------+---------------------+
+|            Supabase Cloud                |
+|  - Postgres (Realtime Data Streams)      |
+|  - Auth & Edge Functions                 |
++--------------------+---------------------+
+                     | (Listens to Realtime DB updates)
+                     v
++--------------------+---------------------+
+|        techbin-app (Web Dashboard)       |
+|  - Live telemetry & charts               |
+|  - Admin & Viewer Roles                  |
++------------------------------------------+
 ```
 
-```bash
-./setup.sh dev
+---
+
+## 📂 Repository Structure
+
+```text
+/
+├── techbin-app/               # React & Tailwind Web Application (Frontend + Supabase Configuration)
+│   ├── src/                   # React components, features, and routing
+│   ├── supabase/              # SQL schemas, migration scripts, and edge functions
+│   ├── setup.sh & setup.bat   # Automated configuration and dependency bootstrap scripts
+│   └── package.json           # Frontend dependency manifest
+│
+└── techbin-ml-hardware/       # Python Edge Application (Raspberry Pi & ML Inference)
+    ├── app/                   # Pi sensor pipelines, camera captures, telemetry upload, and ML
+    ├── tests/                 # Unit tests & pipeline validation scenarios
+    ├── logs/                  # Offline queue directory and operational logs
+    └── docs/                  # Hardware guides and development documentation
 ```
 
-URLs:
-- Frontend: http://localhost:5173
+---
+
+## 💻 Part 1: TechBin Web Dashboard (`techbin-app`)
+
+The **TechBin Dashboard** provides administration, telemetry reporting, and role-based access control for managing the smart waste bins.
+
+### Tech Stack
+* **Frontend**: React (v18), TypeScript, Vite, Tailwind CSS.
+* **Backend & Database**: Supabase (PostgreSQL, Realtime subscriptions, Edge Functions, Auth).
+
+### Core Features
+* **Role-Based Access Control (RBAC)**: Admin and Viewer roles. Only Admins can register new users, configure settings, and manage hardware nodes.
+* **Real-time Telemetry Dashboard**: Subscribes to live Supabase updates to show current capacity (fill levels), bin temperature, gas levels, and fault logs.
+* **Analytics**: Interactive graphs highlighting recycling efficiency and sorting correctness.
+* **Permanent Super Admin**: Configured to bootstrap `admin@techbin.com` with complete administrator permissions.
+
+### Setup and Local Execution
+
+1. **Configure Environment Variables**:
+   In `techbin-app`, create a `.env.local` file from `.env.example` and populate it with your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=https://your-supabase-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-public-key
+   ```
+
+2. **Run Dependency Setup**:
+   Use the automated setup scripts (runs package checks, installs dependencies, and runs a test build):
+   * **macOS / Linux**:
+     ```bash
+     cd techbin-app
+     chmod +x setup.sh
+     ./setup.sh
+     ```
+   * **Windows (Command Prompt)**:
+     ```cmd
+     cd techbin-app
+     setup.bat
+     ```
+
+3. **Start the Frontend Development Server**:
+   ```bash
+   ./setup.sh dev
+   ```
+   Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+4. **Initialize Database Schema**:
+   Apply `supabase/schema.sql` to your Supabase project using the SQL Editor to set up tables, RLS (Row Level Security) policies, and functions.
 
 ---
 
-## One-Command Setup (Recommended for Sharing)
+## ⚙️ Part 2: TechBin ML & Hardware (`techbin-ml-hardware`)
 
-You can now bootstrap dependencies and verify the frontend build with one file:
+Deployed on a Raspberry Pi, this module controls sensors, runs on-device deep learning inference to identify rubbish categories, and publishes statistics.
 
-- macOS / Linux:
-  - Run:
-    - `bash setup.sh`
-  - Optional:
-    - `chmod +x setup.sh && ./setup.sh`
+### Tech Stack & Dependencies
+* **Core Runtime**: Python 3
+* **Inference Engine**: TensorFlow Lite (TFLite)
+* **Hardware Drivers**: Picamera2, RPi.GPIO (for ultrasonic sensors, switches, and future actuators)
 
-- Windows (CMD):
-  - Run:
-    - `setup.bat`
+### Core Features
+* **EfficientNetV2 AI Classifier**: Runs a local, low-latency `.tflite` model classifying waste into 5 categories: `cardboard`, `paper`, `plastic_glass`, `metal`, and `trash`.
+* **5-Frame Average & Margin Validation**: Takes 5 frames from the Picamera2 RGB888 buffer, averages scores, and verifies that the prediction exceeds a minimum confidence threshold (`0.60`) and margin threshold (`0.12`) before accepting.
+* **Ultrasonic Side Confirmation**: Confirms if the item was successfully dropped and validates whether it landed on the correct side (e.g., recyclable side vs. non-recyclable side).
+* **Robust Telemetry Uploader**: 
+  * Ingests bin states to Supabase.
+  * **Offline Queue & Resiliency**: If internet connectivity is interrupted, telemetry payloads are queued locally in `logs/telemetry_queue/`. When connection is restored, the daemon retries uploading while preserving the original `eventId`.
 
-What the setup scripts do:
-- Check Node.js and package managers
-- Install root dependencies (`pnpm`)
-- Build the Vite frontend
+### Required Environment Variables
 
-After setup, create `.env.local` from `.env.example`, apply `supabase/schema.sql`, deploy the Supabase Edge Functions, then run `./setup.sh dev`.
+Set the following variables on the edge device environment:
+```bash
+# Supabase Cloud Configuration
+export TECHBIN_SUPABASE_URL="https://your-supabase-project.supabase.co"
+export TECHBIN_ORG_ID="techbin"
+export TECHBIN_BIN_CODE="BIN-001"
+export TECHBIN_DEVICE_TOKEN="your_device_authentication_token"
+export TECHBIN_SUPABASE_TIMEOUT_SECONDS="10"
 
----
+# Model Location
+export TECHBIN_MODEL_PACKAGE_PATH="/path/to/techbin_effnetv2_pi_test_package"
+export TECHBIN_MODEL_VERSION="techbin-effnetv2-v1"
 
-## Best Way to Share This Project
+# (Optional) Prediction Thresholds
+export TECHBIN_REAL_MIN_CONFIDENCE="0.60"
+export TECHBIN_REAL_MIN_MARGIN="0.12"
+```
 
-Preferred:
-- Share via GitHub/GitLab (small size, version history, easy updates)
+### Running the ML Hardware Pipeline
 
-If sharing a ZIP:
-- Include:
-  - project source files
-  - `pnpm-lock.yaml`
-  - `setup.sh` and `setup.bat`
-- Exclude:
-  - `node_modules`
-  - `dist`
+* **To run a single real-device disposal session (production telemetry mode)**:
+  ```bash
+  PYTHONPATH=. python3 -m app.main_real_device --telemetry-mode upload_or_queue --json
+  ```
+  *This executes the full physical loop: front-session trigger -> side baseline check -> wait for item -> camera frame capture -> EfficientNetV2 prediction -> manual drop detection on side -> voice feedback generation -> state/event log -> upload to Supabase.*
 
-Then tell the receiver:
-1. Extract ZIP
-2. Run setup script (`setup.sh` or `setup.bat`)
-3. Configure Supabase and run the frontend
+* **To run tests / dry runs (mock mode)**:
+  ```bash
+  python3 -m app.main_runtime
+  # OR
+  python3 -m app.main_manual
+  ```
 
----
-
-## Create First Admin User
-
-Open Supabase Dashboard > Authentication > Users and create:
-
-Email: admin@techbin.com
-
-Then login using the same credentials in the app.
-
----
-
-## Creating More Users
-
-Only Admin users can create new users using the User Management page.
-Roles are enforced using the Supabase `profiles` table, RLS policies, and Edge Functions.
+* **To run unit tests**:
+  ```bash
+  PYTHONPATH=. python3 tests/test_supabase_real_pipeline.py
+  ```
 
 ---
 
-## Notes
+## 🤝 How They Integrate (Disposal Loop)
 
-- See `SUPABASE_PIPELINE.md` for the Pi ingest payload and first-bin setup.
-- Analytics and telemetry pages read live Supabase tables once the Pi starts sending data.
-
----
-
-If you follow these steps exactly, the project will run successfully.
+1. **Detection**: An object is placed into the TechBin physical compartment.
+2. **AI Inference**: The Raspberry Pi camera captures the object and passes it to the `EfficientNetV2` classifier to predict the waste type.
+3. **User Selection & Voice Feedback**: The user manually selects which compartment to drop the item in. The side ultrasonic sensors detect where the item was dropped, and the system plays voice feedback announcing whether it was a correct or incorrect disposal.
+4. **Data Sync**: The Pi uploads a telemetry payload containing updated fill levels, temperature, and the specific `latestEvent` metadata to Supabase.
+5. **Dashboard Refresh**: The React Dashboard (`techbin-app`) receives the change stream via Supabase Realtime, immediately updating the telemetry cards, charts, and log lists without needing page reloads.
