@@ -9,29 +9,7 @@ TechBin is an end-to-end, IoT and AI-driven smart waste management system design
 
 ## 📐 System Architecture & Data Flow
 
-```
-+------------------------------------------+
-|       techbin-ml-hardware (Pi)           |
-|  - Pi Camera + EfficientNetV2 Classify   |
-|  - Ultrasonic Fill Levels & Sorting      |
-+--------------------+---------------------+
-                     | (Sends Telemetry & Disposal Events)
-                     v
-+--------------------+---------------------+
-|            Supabase Cloud                |
-|  - Postgres (Realtime Data Streams)      |
-|  - Auth & Edge Functions                 |
-+--------------------+---------------------+
-                     | (Listens to Realtime DB updates)
-                     v
-+--------------------+---------------------+
-|        techbin-app (Web Dashboard)       |
-|  - Live telemetry & charts               |
-|  - Admin & Viewer Roles                  |
-+------------------------------------------+
-```
 
----
 
 ## 📂 Repository Structure
 
