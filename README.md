@@ -7,9 +7,16 @@ TechBin is an end-to-end, IoT and AI-driven smart waste management system design
 
 ---
 
-## 📐 System Architecture & Data Flow
+## System Architecture & Data Flow
 
 ![TechBin_Web_Ml_hardware Architecture](TechBinSystemArchitecture.png)
+
+---
+
+## Demo System Video
+
+
+---
 
 
 ## 📂 Repository Structure
