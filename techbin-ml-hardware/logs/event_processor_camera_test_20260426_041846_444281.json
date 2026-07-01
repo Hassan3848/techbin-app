@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-04-26T04:18:46.443899",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "eventType": "disposal_event",
+  "predictedClass": "trash",
+  "recyclability": "non-recyclable",
+  "confidence": 0.88,
+  "imagePath": "/home/hassan/techbin-device/captures/event_processor_camera_test_20260426_041845_975935.jpg",
+  "disposalSide": "left",
+  "expectedSide": "left",
+  "isCorrectDisposal": true,
+  "isConfidenceAccepted": true,
+  "isEventAccepted": true,
+  "rejectionReason": null,
+  "source": "event_processor_camera_test",
+  "schemaVersion": "1.0",
+  "modelName": "mock-waste-classifier-v1",
+  "inferenceTimeMs": 0.033
+}

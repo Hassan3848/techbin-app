@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-05-04T17:16:40.794879",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "faultCode": "camera_not_detected",
+  "severity": "critical",
+  "message": "Raspberry Pi camera is not detected.",
+  "component": "camera",
+  "isResolved": false,
+  "source": "device_health_monitor",
+  "schemaVersion": "1.0"
+}

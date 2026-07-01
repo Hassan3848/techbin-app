@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-04-26T02:13:48.477036",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "predictedClass": "plastic",
+  "recyclability": "recyclable",
+  "confidence": 0.91,
+  "imagePath": "/home/hassan/techbin-device/captures/manual_event_20260426_021338.jpg",
+  "disposalSide": "right",
+  "expectedSide": "right",
+  "isCorrectDisposal": true,
+  "source": "manual_test"
+}

@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-05-05T16:51:15.255393",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "faultCode": "telemetry_disabled_test",
+  "severity": "info",
+  "message": "Testing fault logging without telemetry queue.",
+  "component": "telemetry",
+  "isResolved": false,
+  "source": "test_fault_reporter",
+  "schemaVersion": "1.0"
+}

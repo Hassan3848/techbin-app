@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-04-26T04:10:50.863602",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "eventType": "disposal_event",
+  "predictedClass": "plastic",
+  "recyclability": "recyclable",
+  "confidence": 0.91,
+  "imagePath": "/home/hassan/techbin-device/captures/manual_event_20260426_041050_395084.jpg",
+  "disposalSide": "left",
+  "expectedSide": "right",
+  "isCorrectDisposal": false,
+  "isConfidenceAccepted": true,
+  "isEventAccepted": true,
+  "rejectionReason": null,
+  "source": "main_manual",
+  "schemaVersion": "1.0"
+}

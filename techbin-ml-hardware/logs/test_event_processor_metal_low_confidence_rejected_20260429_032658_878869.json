@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-04-29T03:26:58.878088",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "eventType": "disposal_event",
+  "predictedClass": "metal",
+  "recyclability": "recyclable",
+  "confidence": 0.4,
+  "imagePath": "/home/hassan/techbin-device/captures/runtime_event_20260426_042728_875578.jpg",
+  "disposalSide": "right",
+  "expectedSide": "right",
+  "isCorrectDisposal": true,
+  "isConfidenceAccepted": false,
+  "isEventAccepted": false,
+  "rejectionReason": "low_confidence: 0.400 < 0.700; confidence_engine: ['low_ml_confidence:0.400<min:0.700']",
+  "source": "test_event_processor_metal_low_confidence_rejected",
+  "schemaVersion": "1.0",
+  "modelName": "mock-waste-classifier-v1",
+  "inferenceTimeMs": 0.017,
+  "validatorAccepted": false,
+  "confidenceEngineAccepted": false,
+  "confidenceDecision": "rejected",
+  "confidenceRejectionReasons": [
+    "low_ml_confidence:0.400<min:0.700"
+  ],
+  "confidenceWarnings": [],
+  "metalEvidenceStatus": "not_available"
+}

@@ -1,0 +1,19 @@
+{
+  "payloadId": "fe1f24509e934374962655fa4bfa9297",
+  "createdAt": "2026-05-04T17:17:21.769307",
+  "updatedAt": "2026-05-04T17:17:21.769339",
+  "attempts": 0,
+  "lastError": null,
+  "payload": {
+    "timestamp": "2026-05-04T17:17:21.767516",
+    "binId": "TECHBIN-001",
+    "orgId": "demo-org",
+    "faultCode": "camera_failure",
+    "severity": "critical",
+    "message": "Camera failed to initialize during test.",
+    "component": "camera",
+    "isResolved": false,
+    "source": "test_fault_reporter",
+    "schemaVersion": "1.0"
+  }
+}
