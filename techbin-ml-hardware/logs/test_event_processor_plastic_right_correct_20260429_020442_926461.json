@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-04-29T02:04:42.925633",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "eventType": "disposal_event",
+  "predictedClass": "plastic",
+  "recyclability": "recyclable",
+  "confidence": 0.91,
+  "imagePath": "/home/hassan/techbin-device/captures/runtime_event_20260426_042728_875578.jpg",
+  "disposalSide": "right",
+  "expectedSide": "right",
+  "isCorrectDisposal": true,
+  "isConfidenceAccepted": true,
+  "isEventAccepted": true,
+  "rejectionReason": null,
+  "source": "test_event_processor_plastic_right_correct",
+  "schemaVersion": "1.0",
+  "modelName": "mock-waste-classifier-v1",
+  "inferenceTimeMs": 0.02
+}

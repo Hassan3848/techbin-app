@@ -1,0 +1,19 @@
+{
+  "payloadId": "4dcc5e07f60b460b8f2da05f43e9b596",
+  "createdAt": "2026-05-04T17:17:22.177111",
+  "updatedAt": "2026-05-04T17:17:22.177141",
+  "attempts": 0,
+  "lastError": null,
+  "payload": {
+    "timestamp": "2026-05-04T17:17:22.175341",
+    "binId": "TECHBIN-001",
+    "orgId": "demo-org",
+    "faultCode": "camera_not_detected",
+    "severity": "critical",
+    "message": "Raspberry Pi camera is not detected.",
+    "component": "camera",
+    "isResolved": false,
+    "source": "device_health_monitor",
+    "schemaVersion": "1.0"
+  }
+}

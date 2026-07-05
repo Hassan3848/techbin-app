@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-05-04T16:58:41.404637",
+  "binId": "TECHBIN-001",
+  "orgId": "demo-org",
+  "faultCode": "inference_failure",
+  "severity": "warning",
+  "message": "Mock inference failure test.",
+  "component": "ml_inference",
+  "isResolved": false,
+  "source": "test_fault_reporter",
+  "schemaVersion": "1.0"
+}
