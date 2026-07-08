@@ -19,6 +19,30 @@ function sensorValue(value: unknown, suffix = "") {
   return typeof value === "number" && Number.isFinite(value) ? `${value}${suffix}` : "-";
 }
 
+function categoryLabel(value: unknown, recyclable?: boolean) {
+  const category = typeof value === "string" ? value : "";
+  const labels: Record<string, string> = {
+    cardboard: "Cardboard",
+    paper: "Paper",
+    plastic_glass: "Plastic/Glass",
+    metal: "Metal",
+    trash: "Trash",
+  };
+  if (category && labels[category]) return labels[category];
+  if (category) return category.replace(/[_-]+/g, " ").replace(/^./, (char) => char.toUpperCase());
+  return recyclable ? "Recyclable" : "Non-Recyclable";
+}
+
+function classificationSourceLabel(value: unknown) {
+  const source = typeof value === "string" ? value : "";
+  const labels: Record<string, string> = {
+    camera: "Camera",
+    metal_sensor: "Metal sensor",
+  };
+  if (!source) return "-";
+  return labels[source] || source.replace(/[_-]+/g, " ").replace(/^./, (char) => char.toUpperCase());
+}
+
 export const RealTimeMonitoringPage: React.FC = () => {
   const { user } = useAuth();
   const { settings } = useSettings();
@@ -97,21 +121,23 @@ export const RealTimeMonitoringPage: React.FC = () => {
                 <th className="px-6 py-4 text-left text-xs text-gray-600 uppercase tracking-wider">Bin Code</th>
                 <th className="px-6 py-4 text-left text-xs text-gray-600 uppercase tracking-wider">Item</th>
                 <th className="px-6 py-4 text-left text-xs text-gray-600 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-4 text-left text-xs text-gray-600 uppercase tracking-wider">Source</th>
                 <th className="px-6 py-4 text-left text-xs text-gray-600 uppercase tracking-wider">Disposal Route</th>
                 <th className="px-6 py-4 text-left text-xs text-gray-600 uppercase tracking-wider">Result</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td className="px-6 py-5 text-sm text-gray-600" colSpan={6}>Loading live feed...</td></tr>
+                <tr><td className="px-6 py-5 text-sm text-gray-600" colSpan={7}>Loading live feed...</td></tr>
               ) : rows.length === 0 ? (
-                <tr><td className="px-6 py-6 text-sm text-gray-600" colSpan={6}>No disposal events received from the Pi yet.</td></tr>
+                <tr><td className="px-6 py-6 text-sm text-gray-600" colSpan={7}>No disposal events received from the Pi yet.</td></tr>
               ) : rows.map((event, index) => (
                 <tr key={event.id || index} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-sm text-gray-700">{formatPipelineTime(event.timestamp)}</td>
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">{selected?.binCode}</td>
                   <td className="px-6 py-4 text-sm text-gray-700">{event.label || "-"}</td>
-                  <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${event.recyclable ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>{event.category || (event.recyclable ? "Recyclable" : "Non-Recyclable")}</span></td>
+                  <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${event.recyclable ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>{categoryLabel(event.category, event.recyclable)}</span></td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{classificationSourceLabel(event.classificationSource)}</td>
                   <td className="px-6 py-4 text-sm text-gray-700">{event.disposedSide || "-"} / expected {event.expectedSide || "-"}</td>
                   <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center gap-2 ${event.correct ? "text-emerald-700" : "text-rose-700"}`}>{event.correct ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}{event.correct ? "Correct" : "Incorrect"}</span></td>
                 </tr>

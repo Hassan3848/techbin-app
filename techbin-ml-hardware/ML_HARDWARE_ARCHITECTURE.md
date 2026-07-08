@@ -38,7 +38,12 @@ This document describes the design, ML pipelines, hardware interaction, and offl
 3. **Threshold Filters**:
    * **Confidence Threshold (`0.60`)**: The highest prediction probability must be $\ge 0.60$.
    * **Margin Threshold (`0.12`)**: The difference between the highest probability class and the second highest probability class must be $\ge 0.12$. 
-   * If both checks pass, the classification is accepted. If they fail, the item is labeled as generic `trash`.
+   * If both checks pass, the visual camera classification is accepted. If they fail, the item is labeled as generic `trash`.
+
+### Stage 2A: Final Category Resolution
+1. **Camera Categories**: The camera model supplies the visual prediction used as the original classification, such as `cardboard`, `paper`, `plastic_glass`, or `trash`.
+2. **Metal Override**: When the physical metal detector override is enabled, healthy, and reports a valid metal hit, the final effective category becomes `metal` and `classificationSource` becomes `metal_sensor`.
+3. **Original Prediction Preservation**: The Pi preserves the original camera prediction separately from the final effective category sent to Supabase.
 
 ### Stage 3: Manual Sorting & Ultrasonic Verification
 1. **Drop Detection**: The user decides which compartment to place the item in and drops it.
@@ -46,8 +51,9 @@ This document describes the design, ML pipelines, hardware interaction, and offl
    * Left and right ultrasonic sensors continuously monitor distance.
    * A spike in distance readings (from the calibrated baseline) confirms which side (Recyclable vs. Non-Recyclable) the item fell through.
 3. **Correctness Evaluation**:
-   * The classification (`cardboard`, `paper`, `plastic_glass`, `metal`) belongs to **Recyclable**.
-   * The classification (`trash`) belongs to **Non-Recyclable**.
+   * Final effective categories `cardboard`, `paper`, `plastic_glass`, and `metal` route to **Recyclable**.
+   * Final effective category `trash` routes to **Non-Recyclable**.
+   * `metal` is produced by the physical metal detector override, not by the camera model.
    * If the physical drop matches the category, it is marked as `correctDisposal = true`, otherwise `correctDisposal = false`.
 
 ### Stage 4: Voice Feedback

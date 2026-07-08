@@ -96,7 +96,8 @@ Deployed on a Raspberry Pi, this module controls sensors, runs on-device deep le
 * **Hardware Drivers**: Picamera2, RPi.GPIO (for ultrasonic sensors, switches, and future actuators)
 
 ### Core Features
-* **EfficientNetV2 AI Classifier**: Runs a local, low-latency `.tflite` model classifying waste into 5 categories: `cardboard`, `paper`, `plastic_glass`, `metal`, and `trash`.
+* **EfficientNetV2 AI Classifier**: Runs a local, low-latency `.tflite` model classifying visual waste into camera categories such as `cardboard`, `paper`, `plastic_glass`, and `trash`.
+* **Metal Detector Override**: When enabled and validated by the physical metal detector, the Pi emits `metal` as the final effective system category with `classificationSource = "metal_sensor"`.
 * **5-Frame Average & Margin Validation**: Takes 5 frames from the Picamera2 RGB888 buffer, averages scores, and verifies that the prediction exceeds a minimum confidence threshold (`0.60`) and margin threshold (`0.12`) before accepting.
 * **Ultrasonic Side Confirmation**: Confirms if the item was successfully dropped and validates whether it landed on the correct side (e.g., recyclable side vs. non-recyclable side).
 * **Robust Telemetry Uploader**: 
