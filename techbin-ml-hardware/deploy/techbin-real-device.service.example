@@ -1,0 +1,29 @@
+# Draft only. Do not install, enable, or start until the live demo flow is
+# validated manually and no other direct-GPIO TechBin runtime is active.
+#
+# Install later, if approved:
+#   sudo cp deploy/techbin-real-device.service.example /etc/systemd/system/techbin-real-device.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable techbin-real-device.service
+#
+# Safety:
+# - Only one process should own the Pi camera and direct GPIO sensors at a time.
+# - Validate .env.local mode is 600 before using EnvironmentFile.
+# - Start with --telemetry-mode none or queue during rehearsal; use
+#   upload_or_queue only after Supabase/dashboard readiness is confirmed.
+
+[Unit]
+Description=TechBin real-device one-session runtime
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=hassan
+WorkingDirectory=/home/hassan/combined/TechBin/techbin-ml-hardware
+Environment=PYTHONPATH=/home/hassan/combined/TechBin/techbin-ml-hardware
+EnvironmentFile=/home/hassan/combined/TechBin/techbin-ml-hardware/.env.local
+ExecStart=/usr/bin/python3 -m app.main_real_device --telemetry-mode queue --json
+
+[Install]
+WantedBy=multi-user.target

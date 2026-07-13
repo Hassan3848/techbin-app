@@ -22,7 +22,12 @@ from typing import Any
 from app.config import settings
 
 
-REAL_MODEL_CATEGORIES = ("cardboard", "paper", "plastic_glass", "metal", "trash")
+CAMERA_MODEL_CATEGORIES = ("cardboard", "paper", "plastic_glass", "trash")
+FINAL_SYSTEM_CATEGORIES = ("cardboard", "paper", "plastic_glass", "metal", "trash")
+
+# Backward-compatible name used by telemetry/totals code. These are final
+# system categories, not camera-only labels; metal comes from the GPIO override.
+REAL_MODEL_CATEGORIES = FINAL_SYSTEM_CATEGORIES
 RECYCLABLE_CATEGORIES = ("cardboard", "paper", "plastic_glass", "metal")
 NON_RECYCLABLE_CATEGORIES = ("trash",)
 
@@ -122,7 +127,7 @@ def load_labels(path: Path) -> dict[int, str]:
     else:
         raise RealModelError("labels.json must contain a list or dictionary.")
 
-    unknown = sorted(set(labels.values()) - set(REAL_MODEL_CATEGORIES))
+    unknown = sorted(set(labels.values()) - set(CAMERA_MODEL_CATEGORIES))
     if unknown:
         raise RealModelError(
             "Model labels include unsupported categories: " + ", ".join(unknown)
@@ -332,7 +337,7 @@ class EfficientNetV2CameraClassifier:
             else confidence
         )
 
-        if predicted_category not in REAL_MODEL_CATEGORIES:
+        if predicted_category not in CAMERA_MODEL_CATEGORIES:
             raise RealModelError(f"Unsupported model category: {predicted_category}")
 
         rejection_reason = None
@@ -374,6 +379,8 @@ class EfficientNetV2CameraClassifier:
 
 __all__ = [
     "REAL_MODEL_CATEGORIES",
+    "CAMERA_MODEL_CATEGORIES",
+    "FINAL_SYSTEM_CATEGORIES",
     "RECYCLABLE_CATEGORIES",
     "NON_RECYCLABLE_CATEGORIES",
     "RealModelError",

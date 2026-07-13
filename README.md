@@ -118,6 +118,7 @@ export TECHBIN_SUPABASE_TIMEOUT_SECONDS="10"
 # Model Location
 export TECHBIN_MODEL_PACKAGE_PATH="/path/to/techbin_effnetv2_pi_test_package"
 export TECHBIN_MODEL_VERSION="techbin-effnetv2-v1"
+export TECHBIN_ENABLE_METAL_OVERRIDE="1"
 
 # (Optional) Prediction Thresholds
 export TECHBIN_REAL_MIN_CONFIDENCE="0.60"
@@ -131,6 +132,12 @@ export TECHBIN_REAL_MIN_MARGIN="0.12"
   PYTHONPATH=. python3 -m app.main_real_device --telemetry-mode upload_or_queue --json
   ```
   *This executes the full physical loop: front-session trigger -> side baseline check -> wait for item -> camera frame capture -> EfficientNetV2 prediction -> manual drop detection on side -> voice feedback generation -> state/event log -> upload to Supabase.*
+
+* **To run the secret-safe demo preflight**:
+  ```bash
+  PYTHONPATH=. python3 scripts/preflight_demo_readiness.py
+  ```
+  *This checks required environment variables, model package files, `.env.local` permissions, metal override enablement, and local queue backlog without opening GPIO/camera or contacting Supabase.*
 
 * **To run tests / dry runs (mock mode)**:
   ```bash

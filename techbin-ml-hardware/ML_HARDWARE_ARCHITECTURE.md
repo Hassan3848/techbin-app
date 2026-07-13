@@ -32,6 +32,7 @@ This document describes the design, ML pipelines, hardware interaction, and offl
    * Rectifies red/blue channels if required: `frame[:, :, [2, 1, 0]]`.
    * Resizes the frame dynamically based on `preprocessing_config.json`.
    * Normalizes values in the range `[0..255]`.
+   * The current runtime preserves the red/blue channel swap used by the proven camera script; this must be physically validated on the deployed Pi Camera Module V2 before final submission.
 2. **Inference**:
    * Feeds the tensor into the `EfficientNetV2` model engine (`app/ml/effnetv2.py`).
    * Averages prediction probabilities across the 5 frames.
