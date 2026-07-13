@@ -19,6 +19,32 @@ function sensorValue(value: unknown, suffix = "") {
   return typeof value === "number" && Number.isFinite(value) ? `${value}${suffix}` : "-";
 }
 
+function optionalSensorValue(value: unknown, suffix = "") {
+  return typeof value === "number" && Number.isFinite(value) ? `${value}${suffix}` : "Optional sensor unavailable";
+}
+
+function eventResult(correct: unknown) {
+  if (correct === true) {
+    return {
+      className: "text-emerald-700",
+      icon: <CheckCircle className="w-4 h-4" />,
+      label: "Correct",
+    };
+  }
+  if (correct === false) {
+    return {
+      className: "text-rose-700",
+      icon: <XCircle className="w-4 h-4" />,
+      label: "Incorrect",
+    };
+  }
+  return {
+    className: "text-amber-700",
+    icon: <Clock className="w-4 h-4" />,
+    label: "Not confirmed",
+  };
+}
+
 function categoryLabel(value: unknown, recyclable?: boolean) {
   const category = typeof value === "string" ? value : "";
   const labels: Record<string, string> = {
@@ -107,8 +133,8 @@ export const RealTimeMonitoringPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><p className="text-sm text-gray-500">Left Fill</p><p className="text-3xl text-gray-900">{sensorPercent(selected.sensors.leftFillLevel)}</p></div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><p className="text-sm text-gray-500">Right Fill</p><p className="text-3xl text-gray-900">{sensorPercent(selected.sensors.rightFillLevel)}</p></div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><p className="text-sm text-gray-500">Temperature</p><p className="text-3xl text-gray-900">{sensorValue(selected.sensors.temperature, " C")}</p></div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><p className="text-sm text-gray-500">Gas Level</p><p className="text-3xl text-gray-900">{sensorValue(selected.sensors.gasLevel)}</p></div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><p className="text-sm text-gray-500">Temperature</p><p className="text-lg text-gray-900 leading-snug">{optionalSensorValue(selected.sensors.temperature, " C")}</p></div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5"><p className="text-sm text-gray-500">Gas Level</p><p className="text-lg text-gray-900 leading-snug">{optionalSensorValue(selected.sensors.gasLevel)}</p></div>
         </div>
       )}
 
@@ -131,17 +157,20 @@ export const RealTimeMonitoringPage: React.FC = () => {
                 <tr><td className="px-6 py-5 text-sm text-gray-600" colSpan={7}>Loading live feed...</td></tr>
               ) : rows.length === 0 ? (
                 <tr><td className="px-6 py-6 text-sm text-gray-600" colSpan={7}>No disposal events received from the Pi yet.</td></tr>
-              ) : rows.map((event, index) => (
-                <tr key={event.id || index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-700">{formatPipelineTime(event.timestamp)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">{selected?.binCode}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{event.label || "-"}</td>
-                  <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${event.recyclable ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>{categoryLabel(event.category, event.recyclable)}</span></td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{classificationSourceLabel(event.classificationSource)}</td>
-                  <td className="px-6 py-4 text-sm text-gray-700">{event.disposedSide || "-"} / expected {event.expectedSide || "-"}</td>
-                  <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center gap-2 ${event.correct ? "text-emerald-700" : "text-rose-700"}`}>{event.correct ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}{event.correct ? "Correct" : "Incorrect"}</span></td>
-                </tr>
-              ))}
+              ) : rows.map((event, index) => {
+                const result = eventResult(event.correct);
+                return (
+                  <tr key={event.id || index} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 text-sm text-gray-700">{formatPipelineTime(event.timestamp)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900 font-medium">{selected?.binCode}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{event.label || "-"}</td>
+                    <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${event.recyclable ? "bg-emerald-100 text-emerald-800" : "bg-rose-100 text-rose-800"}`}>{categoryLabel(event.category, event.recyclable)}</span></td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{classificationSourceLabel(event.classificationSource)}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{event.disposedSide || "-"} / expected {event.expectedSide || "-"}</td>
+                    <td className="px-6 py-4 text-sm"><span className={`inline-flex items-center gap-2 ${result.className}`}>{result.icon}{result.label}</span></td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

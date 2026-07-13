@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
     "test:pi-ingest": "bash scripts/test-pi-ingest.sh",
     "test:pi-ingest-duplicate": "bash scripts/test-pi-ingest-duplicate.sh",
     "test:pi-health-heartbeat": "bash scripts/test-pi-health-heartbeat.sh",

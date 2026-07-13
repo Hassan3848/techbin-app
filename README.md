@@ -48,7 +48,7 @@ The **TechBin Dashboard** provides administration, telemetry reporting, and role
 
 ### Core Features
 * **Role-Based Access Control (RBAC)**: Admin and Viewer roles. Only Admins can register new users, configure settings, and manage hardware nodes.
-* **Real-time Telemetry Dashboard**: Subscribes to live Supabase updates to show current capacity (fill levels), bin temperature, gas levels, and fault logs.
+* **Real-time Telemetry Dashboard**: Subscribes to live Supabase updates to show current compartment fill levels, optional sensor values when connected, and fault logs.
 * **Analytics**: Interactive graphs highlighting recycling efficiency and sorting correctness.
 * **Permanent Super Admin**: Configured to bootstrap `admin@techbin.com` with complete administrator permissions.
 
@@ -151,5 +151,5 @@ export TECHBIN_REAL_MIN_MARGIN="0.12"
 1. **Detection**: An object is placed into the TechBin physical compartment.
 2. **AI Inference**: The Raspberry Pi camera captures the object and passes it to the `EfficientNetV2` classifier to predict the waste type.
 3. **User Selection & Voice Feedback**: The user manually selects which compartment to drop the item in. The side ultrasonic sensors detect where the item was dropped, and the system plays voice feedback announcing whether it was a correct or incorrect disposal.
-4. **Data Sync**: The Pi uploads a telemetry payload containing updated fill levels, temperature, and the specific `latestEvent` metadata to Supabase.
+4. **Data Sync**: The Pi uploads a telemetry payload containing updated fill levels, optional sensor values when available, and the specific `latestEvent` metadata to Supabase.
 5. **Dashboard Refresh**: The React Dashboard (`techbin-app`) receives the change stream via Supabase Realtime, immediately updating the telemetry cards, charts, and log lists without needing page reloads.

@@ -154,7 +154,8 @@ export const MessagesPage: React.FC = () => {
     const visibleContacts = ((contactsResult.data || []) as ProfileRow[]).filter((contact) => {
       if (contact.id === user?.uid) return false;
       if (isSuperAdmin) return contact.super_admin !== true;
-      return contact.super_admin === true || (contact.super_admin !== true && contact.org_id === user?.orgId);
+      if (contact.super_admin === true) return true;
+      return contact.org_id === user?.orgId;
     });
     const nextConversations = (conversationsResult.data || []) as AdminChatConversationRow[];
 
