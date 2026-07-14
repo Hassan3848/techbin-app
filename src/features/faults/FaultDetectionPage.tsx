@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { CircleAlert, CheckCircle, Clock, Camera, Radio, Wifi } from "lucide-react";
+import { CircleAlert, CheckCircle, Clock, Camera, Radio, ServerCrash, Volume2, Wifi, Zap } from "lucide-react";
 import { useAuth } from "../../app/providers/AuthProvider";
 import { useSettings } from "../../app/providers/SettingsProvider";
+import { hardwareHealthComponentKeys, statusLabel, type HardwareHealthComponentKey, type HardwareHealthStatus } from "../../shared/hardwareHealth";
 import { formatPipelineTime, PipelineBinState, useRealtimePipeline } from "../../shared/realtimePipeline";
 
 type Filter = "all" | "Critical" | "Warning" | "Resolved";
@@ -20,11 +21,46 @@ function componentLabel(key: string) {
   return key.replace(/([A-Z])/g, " $1").replace(/[_-]+/g, " ").replace(/^./, (c) => c.toUpperCase());
 }
 
+function hardwareSeverity(status: HardwareHealthStatus): Fault["severity"] | null {
+  if (status === "critical") return "Critical";
+  if (status === "warning" || status === "unknown") return "Warning";
+  return null;
+}
+
+function hardwareFaultDescription(label: string, status: HardwareHealthStatus, message: string) {
+  if (status === "unknown") return `${label} status is unknown. ${message}`;
+  return `${label} reports ${statusLabel(status).toLowerCase()} status. ${message}`;
+}
+
+function hardwareFaultsFromBin(bin: PipelineBinState): Fault[] {
+  const components = bin.hardwareHealth?.components;
+  if (!components) return [];
+
+  return hardwareHealthComponentKeys.flatMap((key: HardwareHealthComponentKey) => {
+    const component = components[key];
+    if (!component) return [];
+
+    const severity = hardwareSeverity(component.status);
+    if (!severity) return [];
+
+    return [{
+      id: `${bin.orgId}_${bin.binCode}_hardware_${key}`,
+      binId: bin.binCode,
+      component: component.displayName || componentLabel(key),
+      severity,
+      timestamp: formatPipelineTime(component.lastCheckedAt || bin.hardwareHealth?.lastSeen || bin.status.lastSeen || bin.latestEvent?.timestamp),
+      description: hardwareFaultDescription(component.displayName || componentLabel(key), component.status, component.message || "No component message received."),
+      status: "Unresolved" as const,
+    }];
+  });
+}
+
 function faultsFromBin(bin: PipelineBinState): Fault[] {
   const timestamp = formatPipelineTime(bin.status.lastSeen || bin.latestEvent?.timestamp);
   const activeFaults = Object.entries(bin.faults).filter(([, active]) => active);
+  const hardwareFaults = hardwareFaultsFromBin(bin);
 
-  if (activeFaults.length === 0 && (bin.status.state || "").toLowerCase() === "normal") {
+  if (activeFaults.length === 0 && hardwareFaults.length === 0 && (bin.status.state || "").toLowerCase() === "normal") {
     return [{
       id: `${bin.orgId}_${bin.binCode}_normal`,
       binId: bin.binCode,
@@ -36,7 +72,7 @@ function faultsFromBin(bin: PipelineBinState): Fault[] {
     }];
   }
 
-  return activeFaults.map(([key]) => ({
+  const coarseFaults: Fault[] = activeFaults.map(([key]) => ({
     id: `${bin.orgId}_${bin.binCode}_${key}`,
     binId: bin.binCode,
     component: componentLabel(key),
@@ -45,6 +81,8 @@ function faultsFromBin(bin: PipelineBinState): Fault[] {
     description: `${componentLabel(key)} failure reported by Raspberry Pi`,
     status: "Unresolved",
   }));
+
+  return [...coarseFaults, ...hardwareFaults];
 }
 
 export const FaultDetectionPage: React.FC = () => {
@@ -66,7 +104,15 @@ export const FaultDetectionPage: React.FC = () => {
 
   const getSeverityColor = (severity: string) => severity === "Critical" ? "bg-red-100 text-red-800 border-red-200" : severity === "Warning" ? "bg-yellow-100 text-yellow-800 border-yellow-200" : "bg-green-100 text-green-800 border-green-200";
   const getSeverityIcon = (severity: string) => severity === "Normal" ? <CheckCircle className="w-5 h-5 text-green-600" /> : <CircleAlert className={`w-5 h-5 ${severity === "Critical" ? "text-red-600" : "text-yellow-600"}`} />;
-  const getComponentIcon = (component: string) => component.toLowerCase().includes("camera") ? <Camera className="w-5 h-5" /> : component.toLowerCase().includes("network") || component.toLowerCase().includes("wifi") ? <Wifi className="w-5 h-5" /> : <Radio className="w-5 h-5" />;
+  const getComponentIcon = (component: string) => {
+    const normalized = component.toLowerCase();
+    if (normalized.includes("camera")) return <Camera className="w-5 h-5" />;
+    if (normalized.includes("network") || normalized.includes("wifi")) return <Wifi className="w-5 h-5" />;
+    if (normalized.includes("metal")) return <Zap className="w-5 h-5" />;
+    if (normalized.includes("voice") || normalized.includes("speaker")) return <Volume2 className="w-5 h-5" />;
+    if (normalized.includes("queue")) return <ServerCrash className="w-5 h-5" />;
+    return <Radio className="w-5 h-5" />;
+  };
 
   return (
     <div className="space-y-6">

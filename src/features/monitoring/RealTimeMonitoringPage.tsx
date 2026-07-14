@@ -87,21 +87,25 @@ export const RealTimeMonitoringPage: React.FC = () => {
   const { settings } = useSettings();
   const [params, setParams] = useSearchParams();
   const { bins, loading, error } = useRealtimePipeline(user, settings.refreshRate);
-  const [selectedBin, setSelectedBin] = useState<string>((params.get("bin") || "").trim().toUpperCase());
+  const [selectedBinId, setSelectedBinId] = useState<string>((params.get("bin") || "").trim());
 
   useEffect(() => {
-    const codes = bins.map((bin) => bin.binCode).filter(Boolean);
-    if ((!selectedBin || !codes.includes(selectedBin)) && codes.length > 0) setSelectedBin(codes[0]);
-  }, [bins, selectedBin]);
+    if (bins.length === 0) return;
+    const selectedExists = bins.some((bin) => bin.id === selectedBinId);
+    if (selectedExists) return;
+
+    const legacyBinCodeMatch = bins.find((bin) => bin.binCode === selectedBinId.toUpperCase());
+    setSelectedBinId(legacyBinCodeMatch?.id || bins[0].id);
+  }, [bins, selectedBinId]);
 
   useEffect(() => {
     const next = new URLSearchParams(params);
-    if (selectedBin) next.set("bin", selectedBin);
+    if (selectedBinId) next.set("bin", selectedBinId);
     else next.delete("bin");
     setParams(next, { replace: true });
-  }, [selectedBin]);
+  }, [selectedBinId]);
 
-  const selected = useMemo(() => bins.find((bin) => bin.binCode === selectedBin) || null, [bins, selectedBin]);
+  const selected = useMemo(() => bins.find((bin) => bin.id === selectedBinId) || null, [bins, selectedBinId]);
   const rows = eventRows(selected);
   const lastSeen = selected?.status.lastSeen || selected?.latestEvent?.timestamp;
 
@@ -137,8 +141,8 @@ export const RealTimeMonitoringPage: React.FC = () => {
           <span className="text-sm">Selected Bin</span>
         </div>
 
-        <select className="min-w-[240px] px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-500 bg-white" value={selectedBin} onChange={(e) => setSelectedBin(e.target.value)} disabled={loading}>
-          {loading ? <option value="">Loading bins...</option> : bins.length === 0 ? <option value="">No cloud bins available</option> : bins.map((bin) => <option key={`${bin.orgId}_${bin.binCode}`} value={bin.binCode}>{bin.binCode} - {bin.location || bin.orgId}</option>)}
+        <select className="min-w-[240px] px-3 py-2 border border-gray-200 rounded-lg outline-none focus:border-emerald-500 bg-white" value={selectedBinId} onChange={(e) => setSelectedBinId(e.target.value)} disabled={loading}>
+          {loading ? <option value="">Loading bins...</option> : bins.length === 0 ? <option value="">No cloud bins available</option> : bins.map((bin) => <option key={bin.id} value={bin.id}>{bin.binCode} - {bin.location || bin.orgId}</option>)}
         </select>
       </div>
 
